@@ -57,3 +57,20 @@ $img_stmt->close();
 
     <button type="submit">Confirm Booking</button>
 </form>
+<form action="submit_rating.php" method="POST">
+    <input type="hidden" name="hotel_id" value="<?= $hotel['id'] ?>">
+    <label for="rating">Your Rating:</label>
+    <select name="rating" id="rating" required>
+        <option value="">Choose...</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+    </select><br><br>
+
+    <label for="comment">Comment (optional):</label><br>
+    <textarea name="comment" rows="3" cols="30"></textarea><br><br>
+
+    <button type="submit">Submit Rating</button>
+</form>

@@ -1,32 +1,33 @@
 <?php
-// registerPHP/process_register.php
+session_start();
+require '../databasse/db.php';
 
-require '../databasse/db.php'; // asigură-te că calea e corectă
+$username = $_POST['username'];
+$password = $_POST['password'];
+$role = 'host'; // poți schimba după nevoie
 
-// Verificăm dacă formularul a fost trimis corect
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['username'], $_POST['password'], $_POST['role'])) {
+// Verificăm dacă username-ul există deja
+$check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+$check_stmt->bind_param("s", $username);
+$check_stmt->execute();
+$check_stmt->store_result();
 
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-
-    // Parola criptată
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-
-    // Pregătim interogarea SQL
-    $stmt = $conn->prepare("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $username, $hash, $role);
-
-    if ($stmt->execute()) {
-        // Redirecționare către login după înregistrare
-        header("Location: login.php");
-        exit;
-    } else {
-        echo "Error: " . $stmt->error;
-    }
-
-    $stmt->close();
-} else {
-    echo "Invalid form submission.";
+if ($check_stmt->num_rows > 0) {
+    echo "❌ Username already exists. Please choose another one.";
+    exit;
 }
-?>
+$check_stmt->close();
+
+// Criptăm parola
+$password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+// Inserăm utilizatorul
+$stmt = $conn->prepare("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)");
+$stmt->bind_param("sss", $username, $password_hash, $role);
+
+if ($stmt->execute()) {
+    echo "✅ Registration successful. <a href='login.php'>Login here</a>";
+} else {
+    echo "❌ Error: " . $stmt->error;
+}
+$stmt->close();

@@ -11,7 +11,8 @@ $user_id = $_SESSION['user_id'];
 
 // Obține hotelurile gazdei
 $stmt = $conn->prepare("SELECT * FROM hotels WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $_SESSION['user_id']);
+
 $stmt->execute();
 $result = $stmt->get_result();
 ?>

@@ -2,30 +2,32 @@
 session_start();
 require '../databasse/db.php';
 
-$username = $_POST['username'];
-$password = $_POST['password'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-$stmt = $conn->prepare("SELECT id, password_hash, role FROM users WHERE username = ?");
-$stmt->bind_param("s", $username);
-$stmt->execute();
-$stmt->store_result();
+    $stmt = $conn->prepare("SELECT id, username, password_hash, role FROM users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-if ($stmt->num_rows === 1) {
-    $stmt->bind_result($id, $hash, $role);
-    $stmt->fetch();
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
 
-    if (password_verify($password, $hash)) {
-        $_SESSION['user_id'] = $id;
-        $_SESSION['role'] = $role;
+        if (password_verify($password, $user['password_hash'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['role'] = $user['role'];
 
-        // Redirecționează în funcție de rol
-        if ($role === 'admin') {
-            header("Location: ../admin_dashboard.php");
-        } else {
+            // 🔁 Redirecționează la pagina hotelurilor proprii
             header("Location: ../my_hotels.php");
+            exit;
+        } else {
+            echo "❌ Login failed: Incorrect password.";
         }
-        exit;
+    } else {
+        echo "❌ Login failed: User not found.";
     }
+} else {
+    echo "⚠️ Invalid request.";
 }
-
-echo "Login failed.";
