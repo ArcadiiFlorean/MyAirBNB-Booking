@@ -38,6 +38,8 @@ $imgStmt->close();
 
         <p><strong>£<?= $hotel['price_per_day'] ?> / night</strong></p>
         <p><?= htmlspecialchars($hotel['description']) ?></p>
+        <p><strong>Max Guests:</strong> <?= $hotel['max_guests'] ?></p>
+
         <a href="edit_hotel.php?id=<?= $hotel['id'] ?>" style="background:#3498db; color:#fff; padding:6px 12px; text-decoration:none; border-radius:5px;">
           Edit Hotel
         </a>
@@ -113,7 +115,11 @@ $imgStmt->close();
     <input type="number" step="0.01" name="card_fee" placeholder="Card Fee (£)" required><br><br>
     <input type="number" name="discount" placeholder="Discount %" required><br><br>
     <input type="number" name="vat" value="15" placeholder="VAT %" required><br><br>
-    <input type="file" name="images[]" accept="image/*" multiple required><br><br>
+ 
+    <label>Max Guests:</label>
+<input type="number" name="max_guests" min="1" required>
+
+
 
     <button type="submit">Add Hotel</button>
 </form>

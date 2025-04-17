@@ -83,6 +83,9 @@ require './databasse/db.php';
   <div class="px-4 pb-4">
     <p class="text-md font-semibold text-gray-700">£<?= $row['price_per_day'] ?> / night</p>
     <p class="text-gray-600 mb-2"><?= htmlspecialchars($row['description']) ?></p>
+    <p class="text-sm text-gray-500">Max guests: <?= $row['max_guests'] ?></p>
+
+
     <a href="book.php?id=<?= $hotel_id ?>"
     target="_blank"   class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
       Book Now

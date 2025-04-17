@@ -51,6 +51,9 @@ $hotel = $result->fetch_assoc();
 
     <label>VAT (%):</label><br>
     <input type="number" name="vat" value="<?= $hotel['vat_percentage'] ?>" required><br><br>
+    <label>Max Guests:</label>
+<input type="number" name="max_guests" min="1" required>
+
 
    <!-- 🔁 Afișare imagini existente -->
    <h4>Current Images:</h4>
