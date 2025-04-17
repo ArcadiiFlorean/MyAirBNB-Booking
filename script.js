@@ -47,3 +47,16 @@ function openFullGallery() {
     document.getElementById('fullGalleryModal').classList.add('hidden');
   }
   
+  function openPhotoModal(images) {
+    const modal = document.getElementById('photoModal');
+    const grid = document.getElementById('photoGrid');
+    grid.innerHTML = '';
+    images.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'w-full h-60 object-cover rounded-lg shadow hover:scale-105 transition duration-200';
+      grid.appendChild(img);
+    });
+    modal.classList.remove('hidden');
+  }
+  

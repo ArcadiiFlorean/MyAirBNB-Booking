@@ -7,20 +7,23 @@ $stmt->bind_param("i", $hotel_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $hotel = $result->fetch_assoc();
+
+$pricePerNight = $hotel['price_per_day'] ?? 0; // ✅ definește înainte să-l folosești
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Booking: <?= htmlspecialchars($hotel['title']) ?></title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./block-css/book.css">
 </head>
 <body class="bg-gray-100 text-gray-800 p-6">
 
 <div class="max-w-6xl mx-auto">
   <h2 class="text-3xl font-bold text-center mb-8">Booking: <?= htmlspecialchars($hotel['title']) ?></h2>
 
-  <!-- Imagini Hotel -->
   <?php
   $img_stmt = $conn->prepare("SELECT image_path FROM hotel_images WHERE hotel_id = ?");
   $img_stmt->bind_param("i", $hotel_id);
@@ -31,39 +34,41 @@ $hotel = $result->fetch_assoc();
     $images[] = htmlspecialchars($img['image_path']);
   }
   $img_stmt->close();
+
+
   ?>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-    <!-- Imagine mare -->
     <div>
       <?php if (!empty($images)): ?>
-        <img src="<?= $images[0] ?>" class="w-full h-full object-cover rounded-xl shadow-lg hover:scale-105 transition duration-200 cursor-pointer" alt="Main Image">
+        <img src="<?= $images[0] ?>"
+             class="w-full h-[400px] object-cover rounded-xl shadow-lg hover:scale-105 transition duration-200 cursor-pointer"
+             alt="Main Image"
+             onclick='openSingleImageModal(<?= json_encode($images) ?>, 0)'>
       <?php endif; ?>
     </div>
 
-    <!-- 4 imagini mici -->
-   <!-- Containerul pozelor mici -->
-<div class="relative grid grid-cols-2 grid-rows-2 gap-2">
+    <div class="relative grid grid-cols-2 grid-rows-2 gap-2">
+      <button onclick="openPhotoModal(<?= json_encode($images) ?>)"
+              class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-sm px-3 py-1 rounded hover:bg-opacity-70 z-10">
+        View All Photos
+      </button>
 
-<!-- Buton peste imagini -->
-<button onclick="openFullGallery()" 
-        class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-sm px-3 py-1 rounded hover:bg-opacity-70 z-10 ">
-  View All Photos
-</button>
-
-<?php foreach (array_slice($images, 1, 4) as $img): ?>
-  <img src="<?= $img ?>" alt="Small Image"
-       class="w-full h-[200px] object-cover rounded shadow hover:scale-105 transition duration-200 cursor-pointer ">
-<?php endforeach; ?>
-
-</div>
-
-
+      <?php foreach (array_slice($images, 1, 4) as $i => $img): ?>
+        <img src="<?= $img ?>"
+             class="w-full h-[200px] object-cover rounded shadow hover:scale-105 transition duration-200 cursor-pointer"
+             alt="Small Image"
+             onclick='openSingleImageModal(<?= json_encode($images) ?>, <?= $i + 1 ?>)'>
+      <?php endforeach; ?>
+    </div>
   </div>
 
-</button>
-  <!-- Formular rezervare -->
-  <form action="process_booking.php" method="POST" class="bg-white p-6 rounded-xl shadow-md mb-10">
+  <!-- Form Booking -->
+   <div class="booking-form-container">
+  
+
+  <form action="process_booking.php" method="POST" class="bg-white p-6 rounded-xl  max-w-xl shadow-md mb-10">
+    
     <input type="hidden" name="hotel_id" value="<?= $hotel['id'] ?>">
 
     <h3 class="text-xl font-semibold mb-4">Complete your booking</h3>
@@ -107,14 +112,23 @@ $hotel = $result->fetch_assoc();
         </select>
       </div>
     </div>
+<!-- Afișare Preț și Total -->
+<div class="mb-4">
+  <p class="text-sm text-gray-700">
+    <strong>Price per Night:</strong> £<?= number_format($pricePerNight, 2) ?>
+  </p>
+  <p class="text-sm text-gray-700">
+    <strong>Total:</strong> <span id="totalDisplay">£0.00</span>
+  </p>
+</div>
 
     <button type="submit" class="mt-4 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
       Confirm Booking
     </button>
   </form>
 
-  <!-- Formular rating -->
-  <form action="submit_rating.php" method="POST" class="bg-white p-6 rounded-xl shadow-md">
+  <!-- Form Rating -->
+  <!-- <form action="submit_rating.php" method="POST" class="bg-white p-6 rounded-xl max-w-xl shadow-md">
     <input type="hidden" name="hotel_id" value="<?= $hotel['id'] ?>">
     <h3 class="text-xl font-semibold mb-4">Leave a Rating</h3>
 
@@ -134,17 +148,94 @@ $hotel = $result->fetch_assoc();
     <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition">
       Submit Rating
     </button>
-  </form>
+  </form> -->
 
-  <div id="fullGalleryModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 p-8 overflow-y-auto hidden">
-  <button onclick="closeFullGallery()" class="text-white text-3xl absolute top-4 right-6">&times;</button>
-  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-10">
-    <?php foreach ($images as $img): ?>
-      <img src="<?= $img ?>" class="w-full h-60 object-cover rounded-lg shadow" alt="Gallery Image">
-    <?php endforeach; ?>
+  <!-- Modal Fullscreen Grid View -->
+  <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden overflow-y-auto">
+    <button onclick="closePhotoModal()" class="absolute top-4 right-6 text-white text-3xl hover:text-red-500 z-50">&times;</button>
+    <div id="photoGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-6 mt-12"></div>
+  </div>
+
+  <!-- Modal imagine cu navigare -->
+  <div id="singleImageModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center hidden">
+    <button onclick="closeSingleImageModal()" class="absolute top-4 right-6 text-white text-3xl font-bold hover:text-red-400 z-50">&times;</button>
+    <button onclick="prevSingleImage()" class="absolute left-4 text-white text-4xl font-bold z-50 hover:text-blue-400">&#8592;</button>
+    <img id="singleModalImage" src="" class="max-w-[90%] max-h-[90%] rounded shadow-lg" alt="Modal Image" />
+    <button onclick="nextSingleImage()" class="absolute right-4 text-white text-4xl font-bold z-50 hover:text-blue-400">&#8594;</button>
   </div>
 </div>
 </div>
+<script>
+let imageList = [];
+let currentImgIndex = 0;
+
+function openPhotoModal(images) {
+  const modal = document.getElementById('photoModal');
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+  images.forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.className = 'w-full h-60 object-cover rounded-lg shadow hover:scale-105 transition duration-200';
+    grid.appendChild(img);
+  });
+  modal.classList.remove('hidden');
+}
+
+function closePhotoModal() {
+  document.getElementById('photoModal').classList.add('hidden');
+}
+
+function openSingleImageModal(srcArray, index) {
+  imageList = srcArray;
+  currentImgIndex = index;
+  document.getElementById('singleModalImage').src = imageList[currentImgIndex];
+  document.getElementById('singleImageModal').classList.remove('hidden');
+}
+
+function closeSingleImageModal() {
+  document.getElementById('singleImageModal').classList.add('hidden');
+}
+
+function nextSingleImage() {
+  currentImgIndex = (currentImgIndex + 1) % imageList.length;
+  document.getElementById('singleModalImage').src = imageList[currentImgIndex];
+}
+
+function prevSingleImage() {
+  currentImgIndex = (currentImgIndex - 1 + imageList.length) % imageList.length;
+  document.getElementById('singleModalImage').src = imageList[currentImgIndex];
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  const checkinInput = document.querySelector('input[name="checkin"]');
+  const checkoutInput = document.querySelector('input[name="checkout"]');
+  const totalDisplay = document.getElementById('totalDisplay');
+  const pricePerNight = <?= $pricePerNight ?>;
+
+  function updateTotal() {
+    const checkin = new Date(checkinInput.value);
+    const checkout = new Date(checkoutInput.value);
+
+    if (checkin && checkout && checkout > checkin) {
+      const diffTime = checkout - checkin;
+      const nights = diffTime / (1000 * 60 * 60 * 24);
+      const total = nights * pricePerNight;
+      totalDisplay.textContent = `£${total.toFixed(2)}`;
+    } else {
+      totalDisplay.textContent = '£0.00';
+    }
+  }
+
+  checkinInput.addEventListener('change', updateTotal);
+  checkoutInput.addEventListener('change', updateTotal);
+});
+
+
+</script>
+
 <script src="./script.js"></script>
 </body>
 </html>
