@@ -25,7 +25,7 @@ require './databasse/db.php';
     while ($row = $result->fetch_assoc()):
       $hotel_id = $row['id'];
 
-      // Obține imaginile
+      // Imagini hotel
       $img_stmt = $conn->prepare("SELECT image_path FROM hotel_images WHERE hotel_id = ?");
       $img_stmt->bind_param("i", $hotel_id);
       $img_stmt->execute();
@@ -36,7 +36,7 @@ require './databasse/db.php';
       }
       $img_stmt->close();
 
-      // Obține ratingul mediu
+      // Rating hotel
       $rating_stmt = $conn->prepare("SELECT AVG(rating) as avg_rating FROM ratings WHERE hotel_id = ?");
       $rating_stmt->bind_param("i", $hotel_id);
       $rating_stmt->execute();
@@ -44,45 +44,57 @@ require './databasse/db.php';
       $avg_rating = round($rating_result->fetch_assoc()['avg_rating'] ?? 0, 1);
       $rating_stmt->close();
     ?>
-    <div class="hotel-card bg-white rounded-xl shadow-lg p-5 transform transition duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in">
-      <h2 class="text-xl font-bold text-gray-800 mb-3 text-center"><?= htmlspecialchars($row['title']) ?></h2>
+<div class="hotel-card relative bg-white text-center rounded-xl shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in overflow-hidden">
+  
+  <!-- Titlu hotel -->
+  <h2 class="text-xl font-bold text-gray-800 mb-3 p-4"><?= htmlspecialchars($row['title']) ?></h2>
 
-      <!-- Galerie cu butoane scroll -->
-      <div class="relative mb-4">
-        <button onclick="scrollLeft('slider-<?= $hotel_id ?>')" 
-                class="absolute left-2 top-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 z-10">◀</button>
+  <!-- Galerie imagini full-width -->
+  <div class="relative mb-4">
+    <!-- Buton stânga -->
+    <button onclick="scrollLeft('slider-<?= $hotel_id ?>')" 
+            class="absolute left-2 top-1/2 -translate-y-1/2 bg-transparen border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 z-[20]">◀</button>
 
-        <div id="slider-<?= $hotel_id ?>" class="flex overflow-x-auto snap-x gap-3 px-4 scroll-smooth relative z-0">
-          <?php foreach ($images as $index => $imgPath): ?>
-            <img src="<?= $imgPath ?>"
-                 onclick='openModal(<?= json_encode($images) ?>, <?= $index ?>)'
-                 class="w-72 h-48 object-cover rounded shadow cursor-pointer snap-center transition"
-                 alt="Hotel Image">
-          <?php endforeach; ?>
-        </div>
+    <!-- Slider imagini -->
+    <div id="slider-<?= $hotel_id ?>" 
+     class="flex overflow-x-auto snap-x snap-mandatory gap-2 scroll-smooth relative z-0 w-full h-60">
 
-        <button onclick="scrollRight('slider-<?= $hotel_id ?>')" 
-                class="absolute right-2 top-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 z-10">▶</button>
-      </div>
+      <?php foreach ($images as $index => $imgPath): ?>
+        <img src="<?= $imgPath ?>"
+     onclick='openModal(<?= json_encode($images) ?>, <?= $index ?>)'
+     class="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
+     alt="Hotel Image">
 
-      <!-- Rating -->
-      <div class="flex items-center justify-center mb-2">
-        <span class="text-yellow-500 text-lg">★</span>
-        <span class="ml-1 text-gray-700"><?= $avg_rating ?> / 5</span>
-      </div>
-
-      <!-- Info -->
-      <p class="text-md font-semibold text-gray-700">£<?= $row['price_per_day'] ?> / night</p>
-      <p class="text-gray-600 mb-2"><?= htmlspecialchars($row['description']) ?></p>
-
-      <a href="book.php?id=<?= $hotel_id ?>"
-         class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-        Book Now
-      </a>
+      <?php endforeach; ?>
     </div>
+
+    <!-- Buton dreapta -->
+    <button onclick="scrollRight('slider-<?= $hotel_id ?>')" 
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border border-gray-300  rounded-full p-2 shadow hover:bg-gray-100 z-[20]">▶</button>
+  </div>
+
+  <!-- Rating -->
+  <div class="flex items-center justify-center mb-2">
+    <span class="text-yellow-500 text-lg">★</span>
+    <span class="ml-1 text-gray-700"><?= $avg_rating ?> / 5</span>
+  </div>
+
+  <!-- Info -->
+  <div class="px-4 pb-4">
+    <p class="text-md font-semibold text-gray-700">£<?= $row['price_per_day'] ?> / night</p>
+    <p class="text-gray-600 mb-2"><?= htmlspecialchars($row['description']) ?></p>
+    <a href="book.php?id=<?= $hotel_id ?>"
+    target="_blank"   class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+      Book Now
+    </a>
+  </div>
+</div>
+
     <?php endwhile; ?>
   </div>
-  <!-- Modal -->
+</div>
+
+<!-- Modal imagine -->
 <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
   <button onclick="closeModal()" class="absolute top-4 right-6 text-white text-3xl font-bold z-10 hover:text-red-400">&times;</button>
   <button onclick="prevImage()" class="absolute left-4 text-white text-3xl font-bold z-10 hover:text-blue-400">&larr;</button>
@@ -92,47 +104,9 @@ require './databasse/db.php';
   <button onclick="nextImage()" class="absolute right-4 text-white text-3xl font-bold z-10 hover:text-blue-400">&rarr;</button>
 </div>
 
-</div>
-<script>
-  function scrollLeft(id) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollBy({ left: -300, behavior: 'smooth' });
-    }
-  }
+<script src="./script.js"></script>
 
-  function scrollRight(id) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollBy({ left: 300, behavior: 'smooth' });
-    }
-  }
 
-  // Modal funcții (dacă folosești openModal în codul tău)
-  let currentImages = [];
-  let currentIndex = 0;
 
-  function openModal(images, index) {
-    currentImages = images;
-    currentIndex = index;
-
-    const modal = document.getElementById('imageModal');
-    const img = document.getElementById('modalImage');
-    img.src = currentImages[currentIndex];
-    modal.classList.remove('hidden');
-  }
-
-  function closeModal() {
-    document.getElementById('imageModal').classList.add('hidden');
-  }
-
-  function prevImage() {
-    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-    document.getElementById('modalImage').src = currentImages[currentIndex];
-  }
-
-  function nextImage() {
-    currentIndex = (currentIndex + 1) % currentImages.length;
-    document.getElementById('modalImage').src = currentImages[currentIndex];
-  }
-</script>
+</body>
+</html>

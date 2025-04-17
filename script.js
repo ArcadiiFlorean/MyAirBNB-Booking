@@ -1,17 +1,21 @@
-
-function scrollLeft(id) {
-    const container = document.getElementById(id);
-    container.scrollBy({ left: -300, behavior: 'smooth' });
-}
-
-function scrollRight(id) {
-    const container = document.getElementById(id);
-    container.scrollBy({ left: 300, behavior: 'smooth' });
-}
-
 let modalImages = [];
 let currentIndex = 0;
-
+function scrollLeft(id) {
+    const container = document.getElementById(id);
+    const image = container.querySelector('img');
+    if (container && image) {
+      container.scrollBy({ left: -(image.offsetWidth + 8), behavior: 'smooth' }); // 8 = gap
+    }
+  }
+  
+  function scrollRight(id) {
+    const container = document.getElementById(id);
+    const image = container.querySelector('img');
+    if (container && image) {
+      container.scrollBy({ left: image.offsetWidth + 8, behavior: 'smooth' });
+    }
+  }
+  
 function openModal(images, index) {
     modalImages = images;
     currentIndex = index;
@@ -33,12 +37,13 @@ function prevImage() {
     document.getElementById('modalImage').src = modalImages[currentIndex];
 }
 
-function scrollLeft(id) {
-    const container = document.getElementById(id);
-    container.scrollBy({ left: -300, behavior: 'smooth' });
-}
 
-function scrollRight(id) {
-    const container = document.getElementById(id);
-    container.scrollBy({ left: 300, behavior: 'smooth' });
-}
+
+function openFullGallery() {
+    document.getElementById('fullGalleryModal').classList.remove('hidden');
+  }
+  
+  function closeFullGallery() {
+    document.getElementById('fullGalleryModal').classList.add('hidden');
+  }
+  
