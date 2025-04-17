@@ -31,10 +31,25 @@ $stmt->bind_param("issdddisi", $user_id, $title, $desc, $price, $fee, $discount,
 
 $stmt->execute();
 
+
 // 2️⃣ Obține ID-ul hotelului
 $hotel_id = $conn->insert_id;
 $stmt->close();
+// 4️⃣ Salvează facilitățile bifate
+if (!empty($_POST['facilities']) && is_array($_POST['facilities'])) {
+    foreach ($_POST['facilities'] as $facilityRaw) {
+        $parts = explode('|', $facilityRaw);
+        if (count($parts) === 2) {
+            $icon = trim($parts[0]);
+            $name = trim($parts[1]);
 
+            $facStmt = $conn->prepare("INSERT INTO hotel_facilities (hotel_id, facility_name, icon) VALUES (?, ?, ?)");
+            $facStmt->bind_param("iss", $hotel_id, $name, $icon);
+            $facStmt->execute();
+            $facStmt->close();
+        }
+    }
+}
 // 3️⃣ Încarcă pozele multiple
 if (isset($_FILES['images'])) {
     foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {

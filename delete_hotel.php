@@ -2,37 +2,36 @@
 session_start();
 require './databasse/db.php';
 
-if (!isset($_GET['id'])) {
-    echo "Missing hotel ID.";
+if (!isset($_SESSION['user_id'])) {
+    echo "Access denied.";
     exit;
 }
 
-$hotel_id = (int)$_GET['id'];
+if (!isset($_GET['id'])) {
+    echo "Hotel ID missing.";
+    exit;
+}
 
-// 🔁 1. Ștergem imaginile asociate
-$stmt = $conn->prepare("DELETE FROM hotel_images WHERE hotel_id = ?");
-$stmt->bind_param("i", $hotel_id);
-$stmt->execute();
-$stmt->close();
+$hotel_id = intval($_GET['id']);
 
-// 🔁 2. Ștergem ratingurile asociate
-$stmt = $conn->prepare("DELETE FROM ratings WHERE hotel_id = ?");
-$stmt->bind_param("i", $hotel_id);
-$stmt->execute();
-$stmt->close();
+// 1️⃣ Șterge întâi facilitățile
+$stmt1 = $conn->prepare("DELETE FROM hotel_facilities WHERE hotel_id = ?");
+$stmt1->bind_param("i", $hotel_id);
+$stmt1->execute();
+$stmt1->close();
 
-// 🔁 3. Ștergem rezervările asociate
-$stmt = $conn->prepare("DELETE FROM bookings WHERE hotel_id = ?");
-$stmt->bind_param("i", $hotel_id);
-$stmt->execute();
-$stmt->close();
+// 2️⃣ Șterge imaginile (dacă ai și în `hotel_images`)
+$stmt2 = $conn->prepare("DELETE FROM hotel_images WHERE hotel_id = ?");
+$stmt2->bind_param("i", $hotel_id);
+$stmt2->execute();
+$stmt2->close();
 
-// 🔁 4. Ștergem hotelul
-$stmt = $conn->prepare("DELETE FROM hotels WHERE id = ?");
-$stmt->bind_param("i", $hotel_id);
-$stmt->execute();
-$stmt->close();
+// 3️⃣ Acum ștergi hotelul
+$stmt3 = $conn->prepare("DELETE FROM hotels WHERE id = ?");
+$stmt3->bind_param("i", $hotel_id);
+$stmt3->execute();
+$stmt3->close();
 
-header("Location: my_hotels.php?deleted=success");
+header("Location: my_hotels.php");
 exit;
 ?>

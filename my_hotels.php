@@ -12,6 +12,10 @@ $stmt = $conn->prepare("SELECT * FROM hotels WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+$hostStmt = $conn->prepare("SELECT * FROM host_profiles WHERE user_id = ?");
+$hostStmt->bind_param("i", $user_id);
+$hostStmt->execute();
+$hostProfile = $hostStmt->get_result()->fetch_assoc();
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +52,35 @@ $result = $stmt->get_result();
           <a href="edit_hotel.php?id=<?= $hotel['id'] ?>" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Edit</a>
           <a href="delete_hotel.php?id=<?= $hotel['id'] ?>" onclick="return confirm('Are you sure?')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</a>
         </div>
+<!-- Facilities Section -->
+<div class="mt-6">
+  <h4 class="text-lg font-semibold mb-2">Facilities</h4>
+
+  <!-- Existing facilities -->
+  <?php
+  $facStmt = $conn->prepare("SELECT facility_name, icon FROM hotel_facilities WHERE hotel_id = ?");
+  $facStmt->bind_param("i", $hotel['id']);
+  $facStmt->execute();
+  $facResult = $facStmt->get_result();
+  if ($facResult->num_rows > 0): ?>
+    <ul class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm text-gray-700 mb-4">
+      <?php while ($fac = $facResult->fetch_assoc()): ?>
+        <li><?= $fac['icon'] ?> <?= htmlspecialchars($fac['facility_name']) ?></li>
+      <?php endwhile; ?>
+    </ul>
+  <?php else: ?>
+    <p class="text-sm text-gray-500 mb-2">No facilities added yet.</p>
+  <?php endif; ?>
+  <?php $facStmt->close(); ?>
+
+  <!-- Add new facility -->
+  <form action="process_add_facility.php" method="POST" class="flex gap-2 items-center">
+    <input type="hidden" name="hotel_id" value="<?= $hotel['id'] ?>">
+    <input type="text" name="facility_name" placeholder="Facility name (e.g. Wifi)" required class="border px-3 py-1 rounded w-1/2">
+    <input type="text" name="icon" placeholder="Emoji (e.g. 📶)" required class="border px-3 py-1 rounded w-20 text-center">
+    <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Add</button>
+  </form>
+</div>
 
         <h4 class="text-lg font-semibold mt-6 mb-2">Bookings</h4>
         <?php
@@ -95,7 +128,16 @@ $result = $stmt->get_result();
         <?php endif; $bookings_stmt->close(); ?>
       </div>
     <?php endwhile; ?>
-
+    <div class="bg-white p-6 rounded-lg shadow mb-8">
+  <h3 class="text-xl font-semibold mb-4">Update Host Profile</h3>
+  <form action="update_host_profile.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+    <input type="text" name="host_name" placeholder="Hosted by..." value="<?= htmlspecialchars($hostProfile['host_name'] ?? '') ?>" required class="w-full border px-3 py-2 rounded">
+    <input type="number" name="experience_years" placeholder="Years hosting" value="<?= $hostProfile['experience_years'] ?? '' ?>" required class="w-full border px-3 py-2 rounded">
+    <textarea name="highlights" placeholder="Listing Highlights" required class="w-full border px-3 py-2 rounded"><?= htmlspecialchars($hostProfile['highlights'] ?? '') ?></textarea>
+    <input type="file" name="profile_image" accept="image/*" class="w-full">
+    <button type="submit" class="bg-purple-600 text-white px-5 py-2 rounded hover:bg-purple-700">Save Profile</button>
+  </form>
+</div>
     <?php if (isset($_GET['edited']) && $_GET['edited'] === 'success'): ?>
       <p class="text-green-600 font-semibold mb-4">Hotel updated successfully!</p>
     <?php endif; ?>
@@ -114,6 +156,18 @@ $result = $stmt->get_result();
         <input type="file" name="images[]" accept="image/*" multiple required class="w-full">
         <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700">Add Hotel</button>
       </form>
+      <!-- Facilități hotel (checkbox-uri) -->
+<div>
+  <label><input type="checkbox" name="facilities[]" value="🛏️|Double bed"> 🛏️ Double bed</label><br>
+  <label><input type="checkbox" name="facilities[]" value="📶|Wi-Fi"> 📶 Wi-Fi</label><br>
+  <label><input type="checkbox" name="facilities[]" value="🚿|Private Bathroom"> 🚿 Private Bathroom</label><br>
+  <label><input type="checkbox" name="facilities[]" value="📺|Smart TV"> 📺 Smart TV</label><br>
+  <label><input type="checkbox" name="facilities[]" value="☕|Coffee Maker"> ☕ Coffee Maker</label><br>
+  <label><input type="checkbox" name="facilities[]" value="🅿️|Free Parking"> 🅿️ Free Parking</label><br>
+  <label><input type="checkbox" name="facilities[]" value="❄️|Air Conditioning"> ❄️ Air Conditioning</label><br>
+  <label><input type="checkbox" name="facilities[]" value="🐶|Pet Friendly"> 🐶 Pet Friendly</label><br>
+</div>
+
     </div>
 
     <div class="mt-8">
