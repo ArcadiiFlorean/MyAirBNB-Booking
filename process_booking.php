@@ -6,11 +6,28 @@ $name = $_POST['name'];
 $phone = $_POST['phone'];
 $checkin = $_POST['checkin'];
 $checkout = $_POST['checkout'];
-$adults = $_POST['adults'];
-$children = $_POST['children'];
+$adults = (int)$_POST['adults'];
+$children = (int)$_POST['children'];
 $pets = $_POST['pets'];
 
-// Calcul zile
+// Total oaspeți
+$total_guests = $adults + $children;
+
+// ✅ Obținem datele hotelului inclusiv max_guests
+$hotelStmt = $conn->prepare("SELECT price_per_day, card_fee, discount_percentage, vat_percentage, max_guests FROM hotels WHERE id = ?");
+$hotelStmt->bind_param("i", $hotel_id);
+$hotelStmt->execute();
+$hotelStmt->bind_result($price_per_day, $card_fee, $discount_percent, $vat_percent, $max_guests);
+$hotelStmt->fetch();
+$hotelStmt->close();
+
+if ($total_guests > $max_guests) {
+    echo "<p style='color:red;'>❌ This hotel allows a maximum of $max_guests guests. You selected $total_guests.</p>";
+    echo "<a href='book.php?id=$hotel_id'>Go back</a>";
+    exit;
+}
+
+// ✅ Calcul zile
 $checkinDate = new DateTime($checkin);
 $checkoutDate = new DateTime($checkout);
 $days = $checkoutDate->diff($checkinDate)->days;
@@ -30,18 +47,10 @@ $checkStmt->execute();
 $result = $checkStmt->get_result();
 
 if ($result->num_rows > 0) {
-    echo "This period is already booked!";
+    echo "❌ This period is already booked!";
     exit;
 }
 $checkStmt->close();
-
-// ✅ Obținem informațiile hotelului pentru calcule
-$priceStmt = $conn->prepare("SELECT price_per_day, card_fee, discount_percentage, vat_percentage FROM hotels WHERE id = ?");
-$priceStmt->bind_param("i", $hotel_id);
-$priceStmt->execute();
-$priceStmt->bind_result($price_per_day, $card_fee, $discount_percent, $vat_percent);
-$priceStmt->fetch();
-$priceStmt->close();
 
 // ✅ Calcul subtotal, discount, TVA, total
 $subtotal = $price_per_day * $days;
@@ -62,5 +71,6 @@ $insert->bind_param(
 $insert->execute();
 $insert->close();
 
-echo "Booking successful! <a href='index.php'>Back to Home</a>";
+echo "<p style='color:green;'>✅ Booking successful!</p>";
+echo "<p><a href='index.php'>Back to Home</a></p>";
 ?>

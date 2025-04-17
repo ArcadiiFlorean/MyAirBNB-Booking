@@ -16,6 +16,7 @@ $price = $_POST['price'];
 $fee = $_POST['card_fee'];
 $discount = $_POST['discount'];
 $vat = $_POST['vat'];
+$max_guests = $_POST['max_guests']; // ✅ preluăm valoarea maximă de oaspeți
 
 // Gestionăm imaginea principală (optional)
 $imagePath = null;
@@ -23,11 +24,15 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
     $imagePath = 'uploads/' . time() . '_' . basename($_FILES['image']['name']);
     move_uploaded_file($_FILES['image']['tmp_name'], $imagePath);
 
-    $stmt = $conn->prepare("UPDATE hotels SET title = ?, description = ?, price_per_day = ?, card_fee = ?, discount_percentage = ?, vat_percentage = ?, image_path = ? WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ssdddisii", $title, $desc, $price, $fee, $discount, $vat, $imagePath, $hotel_id, $user_id);
+    $stmt = $conn->prepare("UPDATE hotels 
+        SET title = ?, description = ?, price_per_day = ?, card_fee = ?, discount_percentage = ?, vat_percentage = ?, image_path = ?, max_guests = ? 
+        WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ssdddisiii", $title, $desc, $price, $fee, $discount, $vat, $imagePath, $max_guests, $hotel_id, $user_id);
 } else {
-    $stmt = $conn->prepare("UPDATE hotels SET title = ?, description = ?, price_per_day = ?, card_fee = ?, discount_percentage = ?, vat_percentage = ? WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ssddiiii", $title, $desc, $price, $fee, $discount, $vat, $hotel_id, $user_id);
+    $stmt = $conn->prepare("UPDATE hotels 
+        SET title = ?, description = ?, price_per_day = ?, card_fee = ?, discount_percentage = ?, vat_percentage = ?, max_guests = ? 
+        WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ssddddiii", $title, $desc, $price, $fee, $discount, $vat, $max_guests, $hotel_id, $user_id);
 }
 
 if ($stmt->execute()) {
@@ -49,10 +54,10 @@ if ($stmt->execute()) {
         }
     }
 
-    // ✅ Abia acum redirect
+    // ✅ Redirect după succes
     header("Location: my_hotels.php?edited=success");
     exit;
 
 } else {
-    echo "Error updating hotel: " . $stmt->error;
+    echo "❌ Error updating hotel: " . $stmt->error;
 }

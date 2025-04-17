@@ -14,7 +14,8 @@ $price = $_POST['price'];
 $fee = $_POST['card_fee'];
 $discount = $_POST['discount'];
 $vat = $_POST['vat'];
-$max_guests = $_POST['max_guests']; // ✅ nou
+$max_guests = isset($_POST['max_guests']) && $_POST['max_guests'] > 0 ? $_POST['max_guests'] : 2;
+
 
 // Prima imagine (optională, ca thumbnail)
 $imagePath = '';
@@ -27,6 +28,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
 $stmt = $conn->prepare("INSERT INTO hotels (user_id, title, description, price_per_day, card_fee, discount_percentage, vat_percentage, image_path, max_guests) 
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("issdddisi", $user_id, $title, $desc, $price, $fee, $discount, $vat, $imagePath, $max_guests);
+
 $stmt->execute();
 
 // 2️⃣ Obține ID-ul hotelului
