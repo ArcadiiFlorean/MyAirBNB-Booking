@@ -6,8 +6,9 @@ if (session_status() === PHP_SESSION_NONE) {
 <!-- ✅ Stil special pentru header -->
 <link rel="stylesheet" href="./block-css/header.css">
 <link rel="stylesheet" href="../general.css/settings.css">
+<style></style>
+<header class="fixed top-0 left-0 w-full z-50 bg-blue-900 text-white shadow-md border-b border-blue-800">
 
-<header class="fixed top-0 left-0 w-full z-50 bg-white shadow-md border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-6 flex justify-between items-center py-4">
     
     <!-- Logo -->
