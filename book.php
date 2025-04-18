@@ -7,6 +7,20 @@ $stmt->bind_param("i", $hotel_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $hotel = $result->fetch_assoc();
+$disabledDates = [];
+$bookingQuery = $conn->prepare("SELECT checkin_date, checkout_date FROM bookings WHERE hotel_id = ?");
+$bookingQuery->bind_param("i", $hotel_id);
+$bookingQuery->execute();
+$bookingResult = $bookingQuery->get_result();
+
+while ($row = $bookingResult->fetch_assoc()) {
+    $start = new DateTime($row['checkin_date']);
+    $end = new DateTime($row['checkout_date']);
+    while ($start <= $end) {
+        $disabledDates[] = $start->format('Y-m-d');
+        $start->modify('+1 day');
+    }
+}
 
 // ✅ Adăugat: verificăm dacă hotelul a fost găsit
 if (!$hotel) {
@@ -34,6 +48,11 @@ $hostStmt->close();
   <title>Booking: <?= htmlspecialchars($hotel['title']) ?></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./block-css/book.css">
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800 p-6">
 <div class="max-w-6xl mx-auto">
@@ -71,33 +90,64 @@ $hostStmt->close();
 
   <!-- Booking Form -->
    <div class="booking-form-container">
-  <form action="process_booking.php" method="POST" class="bg-white p-6 rounded-xl max-w-xl shadow-md mb-10">
-    <input type="hidden" name="hotel_id" value="<?= $hotel['id'] ?>">
-    <h3 class="text-xl font-semibold mb-4">Complete your booking</h3>
+<!-- ... partea PHP de sus rămâne neschimbată ... -->
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-      <div><label class="block mb-1 font-medium">Your Name:</label><input type="text" name="name" class="w-full border border-gray-300 rounded px-3 py-2" required></div>
-      <div><label class="block mb-1 font-medium">Phone:</label><input type="text" name="phone" class="w-full border border-gray-300 rounded px-3 py-2" required></div>
-      <div><label class="block mb-1 font-medium">Check-in:</label><input type="date" name="checkin" class="w-full border border-gray-300 rounded px-3 py-2" required></div>
-      <div><label class="block mb-1 font-medium">Check-out:</label><input type="date" name="checkout" class="w-full border border-gray-300 rounded px-3 py-2" required></div>
-      <div><label class="block mb-1 font-medium">Adults:</label><input type="number" name="adults" min="1" value="1" class="w-full border border-gray-300 rounded px-3 py-2" required></div>
-      <div><label class="block mb-1 font-medium">Children:</label><input type="number" name="children" min="0" value="0" class="w-full border border-gray-300 rounded px-3 py-2"></div>
-      <div><label class="block mb-1 font-medium">Pets:</label>
-        <select name="pets" class="w-full border border-gray-300 rounded px-3 py-2">
-          <option value="no">No</option>
-          <option value="yes">Yes</option>
-        </select>
-      </div>
+<!-- În interiorul formularului de booking -->
+<form action="process_booking.php" method="POST" class="bg-white p-6 rounded-xl max-w-xl shadow-md ">
+  <input type="hidden" name="hotel_id" value="<?= $hotel['id'] ?>">
+  <h3 class="text-xl font-semibold mb-4">Complete your booking</h3>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <div>
+      <label class="block mb-1 font-medium">Your Name:</label>
+      <input type="text" name="name" class="w-full border border-gray-300 rounded px-3 py-2" required>
     </div>
 
-    <div class="mb-4">
-      <p class="text-sm text-gray-700"><strong>Price per Night:</strong> £<?= number_format($pricePerNight, 2) ?></p>
-      <p class="text-sm text-gray-700"><strong>Nights:</strong> <span id="nightsCount">0</span></p>
-      <p class="text-sm text-gray-700"><strong>Total:</strong> <span id="totalDisplay">£0.00</span></p>
+    <div>
+      <label class="block mb-1 font-medium">Phone:</label>
+      <input type="text" name="phone" class="w-full border border-gray-300 rounded px-3 py-2" required>
     </div>
 
-    <button type="submit" class="mt-4 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">Confirm Booking</button>
-  </form>
+    <!-- ✅ Aici am adăugat ID-uri pentru Flatpickr -->
+    <div>
+      <label class="block mb-1 font-medium">Check-in:</label>
+      <input type="date" id="checkin" name="checkin" class="w-full border border-gray-300 rounded px-3 py-2" required>
+    </div>
+
+    <div>
+      <label class="block mb-1 font-medium">Check-out:</label>
+      <input type="date" id="checkout" name="checkout" class="w-full border border-gray-300 rounded px-3 py-2" required>
+    </div>
+
+    <div>
+      <label class="block mb-1 font-medium">Adults:</label>
+      <input type="number" name="adults" min="1" value="1" class="w-full border border-gray-300 rounded px-3 py-2" required>
+    </div>
+
+    <div>
+      <label class="block mb-1 font-medium">Children:</label>
+      <input type="number" name="children" min="0" value="0" class="w-full border border-gray-300 rounded px-3 py-2">
+    </div>
+
+    <div>
+      <label class="block mb-1 font-medium">Pets:</label>
+      <select name="pets" class="w-full border border-gray-300 rounded px-3 py-2">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Prețul -->
+  <div class="mb-4">
+    <p class="text-sm text-gray-700"><strong>Price per Night:</strong> £<?= number_format($pricePerNight, 2) ?></p>
+    <p class="text-sm text-gray-700"><strong>Nights:</strong> <span id="nightsCount">0</span></p>
+    <p class="text-sm text-gray-700"><strong>Total:</strong> <span id="totalDisplay">£0.00</span></p>
+  </div>
+
+  <button type="submit" class="mt-4 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">Confirm Booking</button>
+</form>
+
 <div class="profile">
  <!-- Host Profile Dynamic Section -->
   <div class="bg-white p-6 rounded-xl max-w-xl shadow-md mb-10">
@@ -118,6 +168,8 @@ $hostStmt->close();
       <?php endforeach; ?>
     </ul>
   </div>
+
+
   <!-- What this place offers -->
 
 
@@ -137,8 +189,29 @@ $facResult = $facStmt->get_result();
       <?php endwhile; ?>
     </ul>
   </div>
+
+  
 <?php endif; ?>
 <?php $facStmt->close(); ?>
+<!-- Social Section -->
+<section class="mt-16 bg-white py-1
+ rounded-xl shadow-md max-w-xl mx-auto text-center">
+  <h3 class="text-2xl font-bold mb-6 text-gray-800">Connect with us</h3>
+  <div class="flex justify-center space-x-6 text-3xl text-gray-600">
+    <a href="https://facebook.com" target="_blank" class="hover:text-blue-600 transition">
+      <i class="fab fa-facebook-square"></i>
+    </a>
+    <a href="https://instagram.com" target="_blank" class="hover:text-pink-500 transition">
+      <i class="fab fa-instagram"></i>
+    </a>
+    <a href="https://twitter.com" target="_blank" class="hover:text-blue-400 transition">
+      <i class="fab fa-twitter"></i>
+    </a>
+    <a href="https://linkedin.com" target="_blank" class="hover:text-blue-700 transition">
+      <i class="fab fa-linkedin"></i>
+    </a>
+  </div>
+</section>
 
 </div>
  
@@ -159,6 +232,70 @@ $facResult = $facStmt->get_result();
 </div>
 
 
+<div class="google-maps-container flex justify-center items-center mt-8">
+  <div>
+    <h3 class="text-xl font-semibold mb-4 text-center">Location</h3>
+    <div class="rounded-xl overflow-hidden shadow-md border border-gray-300">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.533004930742!2d-1.1284655841722358!3d53.52255838000721!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4879615a7e5d1bdb%3A0x5289a2bc7e7ce15b!2sDoncaster!5e0!3m2!1sen!2suk!4v1713427409706!5m2!1sen!2suk"
+        width="1000"
+        height="500"
+        style="border:0;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+
+
+</section>
+<section class="things-to-khow">
+<!-- Things to know Section with functionality -->
+<div class="bg-white p-6 rounded-xl shadow-md max-w-4xl mx-auto mt-12">
+  <h2 class="text-2xl font-bold mb-6">Things to know</h2>
+
+  <!-- House rules -->
+  <!-- House rules -->
+<!-- House rules -->
+<div class="mb-6">
+  <h3 class="text-lg font-semibold mb-2">🏡 House rules</h3>
+  <p class="text-sm text-gray-700 whitespace-pre-line"><?= nl2br(htmlspecialchars($hotel['house_rules'] ?? 'No rules provided yet.')) ?></p>
+</div>
+
+
+
+  <!-- Safety & property -->
+  <!-- Safety & property -->
+<div class="mb-6">
+  <h3 class="text-lg font-semibold mb-2">🛡️ Safety & property</h3>
+  <p class="text-sm text-gray-700 whitespace-pre-line"><?= nl2br(htmlspecialchars($hotel['safety'] ?? 'No safety info provided yet.')) ?></p>
+</div>
+
+
+  <!-- Cancellation policy -->
+  <!-- Cancellation policy -->
+<div>
+  <h3 class="text-lg font-semibold mb-2">📅 Cancellation policy</h3>
+  <p class="text-sm text-gray-700 whitespace-pre-line"><?= nl2br(htmlspecialchars($hotel['cancellation_policy'] ?? 'No policy info provided yet.')) ?></p>
+</div>
+
+</div>
+
+
+
+
+</section>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 let imageList = [];
 let currentImgIndex = 0;
@@ -227,7 +364,45 @@ document.addEventListener('DOMContentLoaded', function () {
   checkinInput.addEventListener('change', updateTotal);
   checkoutInput.addEventListener('change', updateTotal);
 });
+
+const disabledDates = <?= json_encode($disabledDates) ?>;
+
+flatpickr("#checkin", {
+  dateFormat: "Y-m-d",
+  disable: disabledDates,
+  minDate: "today"
+});
+
+flatpickr("#checkout", {
+  dateFormat: "Y-m-d",
+  disable: disabledDates,
+  minDate: "today"
+});
+
+
+function toggleSection(id, btn) {
+  const section = document.getElementById(id);
+  const hiddenItems = section.querySelectorAll('.hidden');
+  const isExpanded = section.classList.contains('max-h-[1000px]');
+
+  if (!isExpanded) {
+    hiddenItems.forEach(item => item.classList.remove('hidden'));
+    section.classList.remove('max-h-[75px]', 'max-h-[50px]');
+    section.classList.add('max-h-[1000px]');
+    btn.textContent = 'Show less';
+  } else {
+    hiddenItems.forEach(item => item.classList.add('hidden'));
+    section.classList.remove('max-h-[1000px]');
+    if (id === 'houseRulesList') {
+      section.classList.add('max-h-[75px]');
+    } else {
+      section.classList.add('max-h-[50px]');
+    }
+    btn.textContent = 'Show more';
+  }
+}
 </script>
 <script src="./script.js"></script>
+
 </body>
 </html>

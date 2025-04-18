@@ -16,26 +16,38 @@ $discount = $_POST['discount'];
 $vat = $_POST['vat'];
 $max_guests = isset($_POST['max_guests']) && $_POST['max_guests'] > 0 ? $_POST['max_guests'] : 2;
 
-
-// Prima imagine (optională, ca thumbnail)
+// Thumbnail (optional)
 $imagePath = '';
 if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
     $imagePath = 'uploads/' . time() . '_' . basename($_FILES['image']['name']);
     move_uploaded_file($_FILES['image']['tmp_name'], $imagePath);
 }
 
-// 1️⃣ Salvează hotelul cu max_guests
+// 1️⃣ Salvează hotelul
 $stmt = $conn->prepare("INSERT INTO hotels (user_id, title, description, price_per_day, card_fee, discount_percentage, vat_percentage, image_path, max_guests) 
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("issdddisi", $user_id, $title, $desc, $price, $fee, $discount, $vat, $imagePath, $max_guests);
-
 $stmt->execute();
-
-
-// 2️⃣ Obține ID-ul hotelului
 $hotel_id = $conn->insert_id;
 $stmt->close();
-// 4️⃣ Salvează facilitățile bifate
+
+// 2️⃣ Încarcă pozele multiple
+if (isset($_FILES['images'])) {
+    foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {
+        if ($_FILES['images']['error'][$index] === 0) {
+            $fileName = time() . '_' . basename($_FILES['images']['name'][$index]);
+            $filePath = 'uploads/' . $fileName;
+            move_uploaded_file($tmpName, $filePath);
+
+            $imgStmt = $conn->prepare("INSERT INTO hotel_images (hotel_id, image_path) VALUES (?, ?)");
+            $imgStmt->bind_param("is", $hotel_id, $filePath);
+            $imgStmt->execute();
+            $imgStmt->close();
+        }
+    }
+}
+
+// 3️⃣ Salvează facilitățile bifate din formular
 if (!empty($_POST['facilities']) && is_array($_POST['facilities'])) {
     foreach ($_POST['facilities'] as $facilityRaw) {
         $parts = explode('|', $facilityRaw);
@@ -47,20 +59,6 @@ if (!empty($_POST['facilities']) && is_array($_POST['facilities'])) {
             $facStmt->bind_param("iss", $hotel_id, $name, $icon);
             $facStmt->execute();
             $facStmt->close();
-        }
-    }
-}
-// 3️⃣ Încarcă pozele multiple
-if (isset($_FILES['images'])) {
-    foreach ($_FILES['images']['tmp_name'] as $index => $tmpName) {
-        if ($_FILES['images']['error'][$index] === 0) {
-            $fileName = time() . '_' . basename($_FILES['images']['name'][$index]);
-            $filePath = 'uploads/' . $fileName;
-            move_uploaded_file($tmpName, $filePath);
-
-            $imgStmt = $conn->prepare("INSERT INTO hotel_images (hotel_id, image_path) VALUES (?, ?)");
-            $imgStmt->bind_param("is", $hotel_id, $filePath);
-            $imgStmt->execute();
         }
     }
 }
