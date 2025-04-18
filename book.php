@@ -54,8 +54,12 @@ $hostStmt->close();
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
-<body class="bg-gray-100 text-gray-800 p-6">
-<div class="max-w-6xl mx-auto">
+<body class="bg-gray-100 text-gray-800 ">
+<?php include './partials/header.php'; ?>
+
+
+
+<div class="max-w-6xl mx-auto pt-[150px]">
   <h2 class="text-3xl font-bold text-center mb-8">Booking: <?= htmlspecialchars($hotel['title']) ?></h2>
 
   <?php
@@ -230,68 +234,62 @@ $facResult = $facStmt->get_result();
     <button onclick="nextSingleImage()" class="absolute right-4 text-white text-4xl font-bold z-50 hover:text-blue-400">&#8594;</button>
   </div>
 </div>
+<div class="max-w-6xl mx-auto px-4 pt-10">
+<h3 class="text-xl font-semibold mb-4 ">Location</h3>
+  <div class="map-and-things flex flex-wrap md:flex-nowrap gap-8 justify-between items-start">
 
-
-<div class="google-maps-container flex justify-center items-center mt-8">
-  <div>
-    <h3 class="text-xl font-semibold mb-4 text-center">Location</h3>
-    <div class="rounded-xl overflow-hidden shadow-md border border-gray-300">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.533004930742!2d-1.1284655841722358!3d53.52255838000721!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4879615a7e5d1bdb%3A0x5289a2bc7e7ce15b!2sDoncaster!5e0!3m2!1sen!2suk!4v1713427409706!5m2!1sen!2suk"
-        width="1000"
-        height="500"
-        style="border:0;"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
+    <!-- Location Section -->
+    <div class="google-maps-container w-full md:w-1/2">
+     
+      <div class="rounded-xl overflow-hidden shadow-md border border-gray-300">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=..."
+          width="460"
+          height="400"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
     </div>
+
+    <!-- Things to Know Section -->
+    <div class="things-to-khow w-full md:w-1/2 bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Things to know</h2>
+
+      <!-- House Rules -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
+          🏡 <span>House rules</span>
+        </h3>
+        <p class="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
+          <?= nl2br(htmlspecialchars($hotel['house_rules'] ?? 'No rules provided yet.')) ?>
+        </p>
+      </div>
+
+      <!-- Safety -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
+          🛡️ <span>Safety & property</span>
+        </h3>
+        <p class="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
+          <?= nl2br(htmlspecialchars($hotel['safety'] ?? 'No safety info provided yet.')) ?>
+        </p>
+      </div>
+
+      <!-- Cancellation -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2">
+          📅 <span>Cancellation policy</span>
+        </h3>
+        <p class="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
+          <?= nl2br(htmlspecialchars($hotel['cancellation_policy'] ?? 'No policy info provided yet.')) ?>
+        </p>
+      </div>
+    </div>
+
   </div>
-</div>
-
-
-  </div>
-
-
-</section>
-<section class="things-to-khow">
-<!-- Things to know Section with functionality -->
-<div class="bg-white p-6 rounded-xl shadow-md max-w-4xl mx-auto mt-12">
-  <h2 class="text-2xl font-bold mb-6">Things to know</h2>
-
-  <!-- House rules -->
-  <!-- House rules -->
-<!-- House rules -->
-<div class="mb-6">
-  <h3 class="text-lg font-semibold mb-2">🏡 House rules</h3>
-  <p class="text-sm text-gray-700 whitespace-pre-line"><?= nl2br(htmlspecialchars($hotel['house_rules'] ?? 'No rules provided yet.')) ?></p>
-</div>
-
-
-
-  <!-- Safety & property -->
-  <!-- Safety & property -->
-<div class="mb-6">
-  <h3 class="text-lg font-semibold mb-2">🛡️ Safety & property</h3>
-  <p class="text-sm text-gray-700 whitespace-pre-line"><?= nl2br(htmlspecialchars($hotel['safety'] ?? 'No safety info provided yet.')) ?></p>
-</div>
-
-
-  <!-- Cancellation policy -->
-  <!-- Cancellation policy -->
-<div>
-  <h3 class="text-lg font-semibold mb-2">📅 Cancellation policy</h3>
-  <p class="text-sm text-gray-700 whitespace-pre-line"><?= nl2br(htmlspecialchars($hotel['cancellation_policy'] ?? 'No policy info provided yet.')) ?></p>
-</div>
-
-</div>
-
-
-
-
-</section>
-
-
 </div>
 
 

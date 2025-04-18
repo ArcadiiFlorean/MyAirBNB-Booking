@@ -7,29 +7,30 @@ if (session_status() === PHP_SESSION_NONE) {
 <link rel="stylesheet" href="./block-css/header.css">
 <link rel="stylesheet" href="../general.css/settings.css">
 
-<header class="header ">
-    <div class="container  mx-auto px-4 flex justify-between items-center py-4">
-        
-        <div class="logo flex items-center gap-2">
-            <a href="index.php" class="flex items-center gap-2">
-                <img src="img/logo-img.png" alt="Logo" class="logo-img w-20 h-20">
-                <h2 class="text-3xl font-bold ">VacayStar</h2>
-            </a>
-        </div>
-
-        <nav class="nav-links space-x-4">
-            <?php if (!isset($_SESSION['user_id'])): ?>
-                <a href="registerPHP/login.php">Login</a>
-                <a href="registerPHP/register.php">Register</a>
-            <?php else: ?>
-                <?php if ($_SESSION['role'] === 'host'): ?>
-                    <a href="my_hotels.php">My Hotels</a>
-                <?php elseif ($_SESSION['role'] === 'admin'): ?>
-                    <a href="admin_dashboard.php">Admin Dashboard</a>
-                <?php endif; ?>
-                <a href="registerPHP/logout.php">Logout</a>
-            <?php endif; ?>
-        </nav>
+<header class="fixed top-0 left-0 w-full z-50 bg-white shadow-md border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-6 flex justify-between items-center py-4">
+    
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <a href="index.php" class="flex items-center gap-3">
+        <img src="img/logo-img.png" alt="Logo" class="w-16 h-16 rounded-full object-cover">
+        <h2 class="text-2xl font-bold text-blue-600 tracking-wide">VacayStar</h2>
+      </a>
     </div>
+
+    <!-- Navigation -->
+    <nav class="flex items-center space-x-6 text-blue-600 font-medium text-base">
+      <?php if (!isset($_SESSION['user_id'])): ?>
+        <a href="registerPHP/login.php" class="hover:text-blue-800 transition">Login</a>
+        <a href="registerPHP/register.php" class="hover:text-blue-800 transition">Register</a>
+      <?php else: ?>
+        <?php if ($_SESSION['role'] === 'host'): ?>
+          <a href="my_hotels.php" class="hover:text-blue-800 transition">My Hotels</a>
+        <?php elseif ($_SESSION['role'] === 'admin'): ?>
+          <a href="admin_dashboard.php" class="hover:text-blue-800 transition">Admin Dashboard</a>
+        <?php endif; ?>
+        <a href="registerPHP/logout.php" class="hover:text-red-600 transition">Logout</a>
+      <?php endif; ?>
+    </nav>
+  </div>
 </header>
-<hr>

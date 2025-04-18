@@ -10,14 +10,15 @@ require './databasse/db.php';
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./block-css/index.css" />
   <link rel="stylesheet" href="./general.css/settings.css" />
+  <link rel="stylesheet" href="./block-css/header.css">
 </head>
 <body class="bg-gray-50 text-gray-800">
 
 <?php include './partials/header.php'; ?>
 
-<h1 class="text-3xl font-bold text-center mt-6 mb-4">Available Hotels</h1>
+<h1 class="text-3xl font-bold text-center mt-6 mb-4 pt-[100px]">Available Hotels</h1>
 
-<div class="container mx-auto px-4">
+<div class="container mx-auto px-4 pt-[100px]">
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
     <?php
     $result = $conn->query("SELECT * FROM hotels");

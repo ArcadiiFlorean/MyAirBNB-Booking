@@ -27,7 +27,8 @@ $hostProfile = $hostStmt->get_result()->fetch_assoc();
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 p-6">
-  <div class="max-w-6xl mx-auto">
+<?php include './partials/header.php'; ?>
+  <div class="max-w-6xl mx-auto pt-[100px] ">
     <h2 class="text-3xl font-bold mb-6">My Hotels</h2>
 
     <?php while ($hotel = $result->fetch_assoc()): ?>
@@ -145,6 +146,50 @@ $hostProfile = $hostStmt->get_result()->fetch_assoc();
         <?php endif; $bookings_stmt->close(); ?>
       </div>
     <?php endwhile; ?>
+    <!-- Update Host Profile -->
+<div class="bg-white p-6 rounded-lg shadow mb-8">
+  <h3 class="text-xl font-semibold mb-4">Update Host Profile</h3>
+  <form action="update_host_profile.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+    <input type="text" name="host_name" placeholder="Hosted by..." value="<?= htmlspecialchars($hostProfile['host_name'] ?? '') ?>" required class="w-full border px-3 py-2 rounded">
+    <input type="number" name="experience_years" placeholder="Years hosting" value="<?= $hostProfile['experience_years'] ?? '' ?>" required class="w-full border px-3 py-2 rounded">
+    <textarea name="highlights" placeholder="Listing Highlights" required class="w-full border px-3 py-2 rounded"><?= htmlspecialchars($hostProfile['highlights'] ?? '') ?></textarea>
+    <input type="file" name="profile_image" accept="image/*" class="w-full">
+    <button type="submit" class="bg-purple-600 text-white px-5 py-2 rounded hover:bg-purple-700">Save Profile</button>
+  </form>
+</div>
+
   </div>
+  <!-- Form add hotel -->
+<div class="bg-white p-6 rounded-lg shadow mb-8">
+  <h3 class="text-xl font-semibold mb-4">Add New Hotel</h3>
+  <form action="process_add_hotel.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+    <input type="text" name="title" placeholder="Title" required class="w-full border px-3 py-2 rounded">
+    <textarea name="description" placeholder="Description" required class="w-full border px-3 py-2 rounded"></textarea>
+    <input type="number" step="0.01" name="price" placeholder="Price per Day (£)" required class="w-full border px-3 py-2 rounded">
+    <input type="number" step="0.01" name="card_fee" placeholder="Card Fee (£)" required class="w-full border px-3 py-2 rounded">
+    <input type="number" name="discount" placeholder="Discount %" required class="w-full border px-3 py-2 rounded">
+    <input type="number" name="vat" value="15" placeholder="VAT %" required class="w-full border px-3 py-2 rounded">
+    <input type="number" name="max_guests" min="1" placeholder="Max Guests" required class="w-full border px-3 py-2 rounded">
+
+    <!-- Facilities -->
+    <div>
+      <label class="block mb-2 font-medium">Facilities:</label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm text-gray-700">
+        <label><input type="checkbox" name="facilities[]" value="🛏️|Double bed"> 🛏️ Double bed</label>
+        <label><input type="checkbox" name="facilities[]" value="📶|Wi-Fi"> 📶 Wi-Fi</label>
+        <label><input type="checkbox" name="facilities[]" value="🚿|Private Bathroom"> 🚿 Private Bathroom</label>
+        <label><input type="checkbox" name="facilities[]" value="📺|Smart TV"> 📺 Smart TV</label>
+        <label><input type="checkbox" name="facilities[]" value="☕|Coffee Maker"> ☕ Coffee Maker</label>
+        <label><input type="checkbox" name="facilities[]" value="🅿️|Free Parking"> 🅿️ Free Parking</label>
+        <label><input type="checkbox" name="facilities[]" value="❄️|Air Conditioning"> ❄️ Air Conditioning</label>
+        <label><input type="checkbox" name="facilities[]" value="🐶|Pet Friendly"> 🐶 Pet Friendly</label>
+      </div>
+    </div>
+
+    <input type="file" name="images[]" accept="image/*" multiple required class="w-full">
+    <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700">Add Hotel</button>
+  </form>
+</div>
+
 </body>
 </html>

@@ -109,6 +109,46 @@ $hotel = $result->fetch_assoc();
     <div class="text-center">
       <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Save Changes</button>
     </div>
+    <div>
+  <h4 class="text-lg font-semibold mt-6 mb-2">Facilities</h4>
+  <?php
+  // Listă completă de facilități disponibile
+  $allFacilities = [
+    '🛏️|Double bed',
+    '📶|Wi-Fi',
+    '🚿|Private Bathroom',
+    '📺|Smart TV',
+    '☕|Coffee Maker',
+    '🅿️|Free Parking',
+    '❄️|Air Conditioning',
+    '🐶|Pet Friendly'
+  ];
+
+  // Obține facilitățile curente
+  $facilities = [];
+  $fac_stmt = $conn->prepare("SELECT facility_name FROM hotel_facilities WHERE hotel_id = ?");
+  $fac_stmt->bind_param("i", $hotel_id);
+  $fac_stmt->execute();
+  $fac_result = $fac_stmt->get_result();
+  while ($row = $fac_result->fetch_assoc()) {
+      $facilities[] = $row['facility_name'];
+  }
+  $fac_stmt->close();
+  ?>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm text-gray-700">
+    <?php foreach ($allFacilities as $facility): 
+      list($icon, $name) = explode('|', $facility);
+      ?>
+      <label class="flex items-center space-x-2">
+        <input type="checkbox" name="facilities[]" value="<?= "$icon|$name" ?>"
+          <?= in_array($name, $facilities) ? 'checked' : '' ?>>
+        <span><?= "$icon $name" ?></span>
+      </label>
+    <?php endforeach; ?>
+  </div>
+</div>
+
   </form>
 </div>
 
