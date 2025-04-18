@@ -107,7 +107,7 @@ require './databasse/db.php';
 
   <button onclick="nextImage()" class="absolute right-4 text-white text-3xl font-bold z-10 hover:text-blue-400">&rarr;</button>
 </div> -->
-
+<?php include './partials/footer.php'; ?>
 <script src="./script.js"></script>
 
 

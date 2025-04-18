@@ -48,18 +48,21 @@ $hostStmt->close();
   <title>Booking: <?= htmlspecialchars($hotel['title']) ?></title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="./block-css/book.css">
+  <link rel="stylesheet" href="./general.css/settings.css">
 <!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
 </head>
 <body class="bg-gray-100 text-gray-800 ">
 <?php include './partials/header.php'; ?>
 
 
 
-<div class="max-w-6xl mx-auto pt-[150px]">
+<div class="max-w-6xl mx-auto pt-[150px] ">
   <h2 class="text-3xl font-bold text-center mb-8">Booking: <?= htmlspecialchars($hotel['title']) ?></h2>
 
   <?php
@@ -255,7 +258,7 @@ $facResult = $facStmt->get_result();
     </div>
 
     <!-- Things to Know Section -->
-    <div class="things-to-khow w-full md:w-1/2 bg-white p-6 rounded-xl shadow-md">
+    <div class="things-to-khow w-full md:w-1/2 bg-white p-6 rounded-xl shadow-md ">
       <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Things to know</h2>
 
       <!-- House Rules -->
@@ -288,8 +291,9 @@ $facResult = $facStmt->get_result();
         </p>
       </div>
     </div>
-
+  
   </div>
+  <?php include './partials/footer.php'; ?>
 </div>
 
 
