@@ -1,0 +1,23 @@
+{
+  "name": "bookinghotels",
+  "version": "1.0.0",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArcadiiFlorean/MyAirBNB-Booking.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArcadiiFlorean/MyAirBNB-Booking/issues"
+  },
+  "homepage": "https://github.com/ArcadiiFlorean/MyAirBNB-Booking#readme",
+  "description": "",
+  "devDependencies": {
+    "tailwindcss": "^4.1.4"
+  }
+}
