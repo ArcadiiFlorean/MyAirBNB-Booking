@@ -98,15 +98,7 @@ require './databasse/db.php';
   </div>
 </div>
 
-<!-- Modal imagine -->
-<!-- <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-  <button onclick="closeModal()" class="absolute top-4 right-6 text-white text-3xl font-bold z-10 hover:text-red-400">&times;</button>
-  <button onclick="prevImage()" class="absolute left-4 text-white text-3xl font-bold z-10 hover:text-blue-400">&larr;</button>
 
-  <img id="modalImage" src="" alt="Enlarged" class="max-w-full max-h-[90vh] rounded shadow-xl z-20" />
-
-  <button onclick="nextImage()" class="absolute right-4 text-white text-3xl font-bold z-10 hover:text-blue-400">&rarr;</button>
-</div> -->
 <?php include './partials/footer.php'; ?>
 <script src="./script.js"></script>
 
