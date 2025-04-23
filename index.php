@@ -89,7 +89,7 @@ require './databasse/db.php';
 
     <a href="book.php?id=<?= $hotel_id ?>"
     target="_blank"   class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-      Book Now
+      Book Now...
     </a>
   </div>
 </div>
