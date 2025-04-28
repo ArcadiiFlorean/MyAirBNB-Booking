@@ -116,6 +116,11 @@ $hostStmt->close();
     </div>
 
     <!-- ✅ Aici am adăugat ID-uri pentru Flatpickr -->
+    <!-- <div>
+  <label class="block mb-1 font-medium">Email:</label>
+  <input type="email" name="email" class="w-full border border-gray-300 rounded px-3 py-2" required>
+</div> -->
+
     <div>
       <label class="block mb-1 font-medium">Check-in:</label>
       <input type="date" id="checkin" name="checkin" class="w-full border border-gray-300 rounded px-3 py-2" required>

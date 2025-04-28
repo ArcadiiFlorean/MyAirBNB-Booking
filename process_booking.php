@@ -12,6 +12,7 @@ $pets = $_POST['pets'];
 
 $total_guests = $adults + $children;
 
+// Luăm informațiile hotelului
 $hotelStmt = $conn->prepare("SELECT price_per_day, card_fee, discount_percentage, vat_percentage, max_guests FROM hotels WHERE id = ?");
 $hotelStmt->bind_param("i", $hotel_id);
 $hotelStmt->execute();
@@ -40,6 +41,7 @@ echo '<!DOCTYPE html>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-6">
 <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full space-y-6 text-center animate-fade-scale">';
 
+// Verificăm dacă sunt prea mulți oaspeți
 if ($total_guests > $max_guests) {
     echo "<div class='text-red-600 text-lg font-semibold'>❌ This hotel allows a maximum of $max_guests guests. You selected $total_guests.</div>";
     echo "<a href='book.php?id=$hotel_id' class='mt-4 inline-block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition transform hover:scale-105 duration-300'>Go Back</a>";
@@ -47,12 +49,12 @@ if ($total_guests > $max_guests) {
     exit;
 }
 
-// Calculate days
+// Calculăm numărul de zile
 $checkinDate = new DateTime($checkin);
 $checkoutDate = new DateTime($checkout);
 $days = $checkoutDate->diff($checkinDate)->days;
 
-// Check for overlapping bookings
+// Verificăm dacă există rezervări suprapuse
 $checkStmt = $conn->prepare("
     SELECT * FROM bookings 
     WHERE hotel_id = ? 
@@ -74,13 +76,13 @@ if ($result->num_rows > 0) {
 }
 $checkStmt->close();
 
-// Calcul total
+// Calculăm costul
 $subtotal = $price_per_day * $days;
 $discount = ($days >= 14) ? ($subtotal * $discount_percent / 100) : 0;
 $vat = ($subtotal - $discount) * $vat_percent / 100;
 $total = $subtotal - $discount + $card_fee + $vat;
 
-// Insert booking
+// Inserăm rezervarea în baza de date
 $insert = $conn->prepare("INSERT INTO bookings 
 (hotel_id, customer_name, phone, checkin_date, checkout_date, days, subtotal, card_fee, discount, vat, total, adults, children, pets) 
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -93,7 +95,7 @@ $insert->bind_param(
 $insert->execute();
 $insert->close();
 
-// Success message
+// Afișăm mesajul de succes
 echo "<div class='text-green-600 text-2xl font-bold'>✅ Booking successful!</div>";
 echo "<p class='text-gray-700'>Thank you, <span class='font-semibold'>" . htmlspecialchars($name) . "</span>! Your booking is confirmed for <span class='font-semibold'>$days</span> night(s).</p>";
 echo "<a href='index.php' class='mt-6 inline-block bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600 transition transform hover:scale-105 duration-300'>Back to Home</a>";

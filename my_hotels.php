@@ -84,7 +84,7 @@ $hostProfile = $hostStmt->get_result()->fetch_assoc();
 <div class="flex flex-wrap justify-center gap-6">
 
 <?php while ($hotel = $result->fetch_assoc()): ?>
-  <div class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+  <div class="bg-white rounded-lg shadow p-6 w-full max-w-lg">
 
     <!-- Titlu hotel -->
     <h3 class="text-xl font-semibold mb-2"><?= htmlspecialchars($hotel['title']) ?></h3>
@@ -180,6 +180,8 @@ $hostProfile = $hostStmt->get_result()->fetch_assoc();
               <th class="px-4 py-2 border">Children</th>
               <th class="px-4 py-2 border">Pets</th>
               <th class="px-4 py-2 border">Total</th>
+              <th class="px-4 py-2 border">Delete</th>
+
             </tr>
           </thead>
           <tbody>
@@ -194,6 +196,10 @@ $hostProfile = $hostStmt->get_result()->fetch_assoc();
               <td class="px-4 py-2 border"><?= $booking['children'] ?></td>
               <td class="px-4 py-2 border"><?= ucfirst($booking['pets']) ?></td>
               <td class="px-4 py-2 border font-semibold">£<?= $booking['total'] ?></td>
+              <td class="px-4 py-2 border">
+  <a href="delete_booking.php?id=<?= $booking['id'] ?>" onclick="return confirm('Are you sure you want to delete this booking?')" class="text-red-600 hover:underline">Delete</a>
+</td>
+
             </tr>
             <?php endwhile; ?>
           </tbody>
