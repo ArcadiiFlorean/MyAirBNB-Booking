@@ -125,48 +125,24 @@ require './databasse/db.php';
 
 <script src="./script.js"></script>
 
-<!-- Script pentru drag-to-scroll -->
 <script>
-// Drag to scroll pentru toate slider-ele
-document.querySelectorAll('[id^="slider-"]').forEach(slider => {
-    let isDown = false;
-    let startX, scrollLeft;
-
-    slider.addEventListener('mousedown', (e) => {
-        isDown = true;
-        slider.classList.add('cursor-grabbing');
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-    });
-
-    slider.addEventListener('mouseleave', () => {
-        isDown = false;
-        slider.classList.remove('cursor-grabbing');
-    });
-
-    slider.addEventListener('mouseup', () => {
-        isDown = false;
-        slider.classList.remove('cursor-grabbing');
-    });
-
-    slider.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 2; // viteza de scroll
-        slider.scrollLeft = scrollLeft - walk;
-    });
-});
-
-// Funcții scrollLeft și scrollRight
+// Scroll funcții
 function scrollLeft(id) {
-  const slider = document.getElementById(id);
-  slider.scrollBy({ left: -300, behavior: 'smooth' });
+  const container = document.getElementById(id);
+  if (!container) {
+    console.error("Container not found for ID:", id);
+    return;
+  }
+  container.scrollLeft -= container.offsetWidth;
 }
 
 function scrollRight(id) {
-  const slider = document.getElementById(id);
-  slider.scrollBy({ left: 300, behavior: 'smooth' });
+  const container = document.getElementById(id);
+  if (!container) {
+    console.error("Container not found for ID:", id);
+    return;
+  }
+  container.scrollLeft += container.offsetWidth;
 }
 </script>
 
