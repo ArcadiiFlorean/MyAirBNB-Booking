@@ -11,6 +11,30 @@ require './databasse/db.php';
   <link rel="stylesheet" href="./block-css/index.css" />
   <link rel="stylesheet" href="./general.css/settings.css" />
   <link rel="stylesheet" href="./block-css/header.css">
+  <style>
+    /* Scrollbar estetic */
+    ::-webkit-scrollbar {
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #888;
+    }
+    /* Ascundem scrollul inițial */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+  </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
@@ -45,33 +69,32 @@ require './databasse/db.php';
       $avg_rating = round($rating_result->fetch_assoc()['avg_rating'] ?? 0, 1);
       $rating_stmt->close();
     ?>
-<div class="hotel-card  relative bg-white text-center rounded-xl shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in overflow-hidden">
+<div class="hotel-card relative bg-white text-center rounded-xl shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in overflow-hidden">
   
   <!-- Titlu hotel -->
   <h2 class="text-xl font-bold text-gray-800 mb-3 p-4"><?= htmlspecialchars($row['title']) ?></h2>
 
-  <!-- Galerie imagini full-width -->
-  <div class="relative mb-4">
+  <!-- Galerie imagini -->
+  <div class="relative mb-4 group">
     <!-- Buton stânga -->
     <button onclick="scrollLeft('slider-<?= $hotel_id ?>')" 
-            class="absolute left-2 top-1/2 -translate-y-1/2 bg-transparen border border-gray-300 rounded-full p-2 shadow hover:bg-gray-100 z-[20]">◀</button>
+            class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 border border-gray-300 rounded-full p-2 shadow hover:bg-white hover:scale-110 transition z-[20] opacity-0 group-hover:opacity-100">◀</button>
 
     <!-- Slider imagini -->
     <div id="slider-<?= $hotel_id ?>" 
-     class="flex overflow-x-auto snap-x snap-mandatory gap-2 scroll-smooth relative z-0 w-full h-60">
+     class="flex overflow-x-auto scrollbar-hide hover:overflow-x-scroll snap-x snap-mandatory gap-2 scroll-smooth relative z-0 w-full h-60 cursor-grab">
 
       <?php foreach ($images as $index => $imgPath): ?>
         <img src="<?= $imgPath ?>"
-     onclick='openModal(<?= json_encode($images) ?>, <?= $index ?>)'
-     class="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
-     alt="Hotel Image">
-
+             onclick='openModal(<?= json_encode($images) ?>, <?= $index ?>)'
+             class="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
+             alt="Hotel Image">
       <?php endforeach; ?>
     </div>
 
     <!-- Buton dreapta -->
     <button onclick="scrollRight('slider-<?= $hotel_id ?>')" 
-            class="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border border-gray-300  rounded-full p-2 shadow hover:bg-gray-100 z-[20]">▶</button>
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 border border-gray-300 rounded-full p-2 shadow hover:bg-white hover:scale-110 transition z-[20] opacity-0 group-hover:opacity-100">▶</button>
   </div>
 
   <!-- Rating -->
@@ -86,9 +109,9 @@ require './databasse/db.php';
     <p class="text-gray-600 mb-2"><?= htmlspecialchars($row['description']) ?></p>
     <p class="text-sm text-gray-500">Max guests: <?= $row['max_guests'] ?></p>
 
-
     <a href="book.php?id=<?= $hotel_id ?>"
-    target="_blank"   class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+       target="_blank" 
+       class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
       Book Now...
     </a>
   </div>
@@ -98,11 +121,54 @@ require './databasse/db.php';
   </div>
 </div>
 
-
 <?php include './partials/footer.php'; ?>
+
 <script src="./script.js"></script>
 
+<!-- Script pentru drag-to-scroll -->
+<script>
+// Drag to scroll pentru toate slider-ele
+document.querySelectorAll('[id^="slider-"]').forEach(slider => {
+    let isDown = false;
+    let startX, scrollLeft;
 
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.add('cursor-grabbing');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('cursor-grabbing');
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('cursor-grabbing');
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // viteza de scroll
+        slider.scrollLeft = scrollLeft - walk;
+    });
+});
+
+// Funcții scrollLeft și scrollRight
+function scrollLeft(id) {
+  const slider = document.getElementById(id);
+  slider.scrollBy({ left: -300, behavior: 'smooth' });
+}
+
+function scrollRight(id) {
+  const slider = document.getElementById(id);
+  slider.scrollBy({ left: 300, behavior: 'smooth' });
+}
+</script>
 
 </body>
 </html>

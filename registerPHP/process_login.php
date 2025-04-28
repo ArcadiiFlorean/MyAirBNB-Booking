@@ -1,7 +1,23 @@
 <?php
 session_start();
 require '../databasse/db.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - VacayStar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
+<?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -23,11 +39,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: ../my_hotels.php");
             exit;
         } else {
-            echo "❌ Login failed: Incorrect password.";
+            echo "<div class='bg-red-100 text-red-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
+                    ❌ Login failed: Incorrect password.
+                    <br><a href='login.php' class='underline text-red-800 hover:text-red-900'>Try again</a>
+                  </div>";
         }
     } else {
-        echo "❌ Login failed: User not found.";
+        echo "<div class='bg-red-100 text-red-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
+                ❌ Login failed: User not found.
+                <br><a href='login.php' class='underline text-red-800 hover:text-red-900'>Try again</a>
+              </div>";
     }
 } else {
-    echo "⚠️ Invalid request.";
+    echo "<div class='bg-yellow-100 text-yellow-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
+            ⚠️ Invalid request.
+            <br><a href='login.php' class='underline text-yellow-800 hover:text-yellow-900'>Back to login</a>
+          </div>";
 }
+?>
+
+</body>
+</html>
