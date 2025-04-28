@@ -14,21 +14,21 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- Logo -->
     <div class="flex items-center gap-3">
       <a href="index.php" class="flex items-center gap-3">
-        <img src="img/logo-img.png" alt="Logo" class="w-16 h-16 rounded-full object-cover">
-        <h2 class="text-2xl font-bold text-blue-600 tracking-wide">VacayStar</h2>
+        <img src="img/logo-2.png" alt="Logo" class="w-16 h-16 rounded-full object-cover">
+        <h2 class="text-2xl font-bold text-blue-300 tracking-wide">VacayStar</h2>
       </a>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex items-center space-x-6 text-blue-600 font-medium text-base">
+    <nav class="flex items-center space-x-6 text-blue-300 font-medium text-base">
       <?php if (!isset($_SESSION['user_id'])): ?>
-        <a href="registerPHP/login.php" class="hover:text-blue-800 transition">Login</a>
-        <a href="registerPHP/register.php" class="hover:text-blue-800 transition">Register</a>
+        <a href="registerPHP/login.php" class="hover:text-white transition">Login</a>
+        <a href="registerPHP/register.php" class="hover:text-white transition">Register</a>
       <?php else: ?>
         <?php if ($_SESSION['role'] === 'host'): ?>
-          <a href="my_hotels.php" class="hover:text-blue-800 transition">My Hotels</a>
+          <a href="my_hotels.php" class="hover:text-white transition">My Hotels</a>
         <?php elseif ($_SESSION['role'] === 'admin'): ?>
-          <a href="admin_dashboard.php" class="hover:text-blue-800 transition">Admin Dashboard</a>
+          <a href="admin_dashboard.php" class="hover:text-white transition">Admin Dashboard</a>
         <?php endif; ?>
         <a href="registerPHP/logout.php" class="hover:text-red-600 transition">Logout</a>
       <?php endif; ?>
