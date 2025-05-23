@@ -12,7 +12,6 @@ require './databasse/db.php';
   <link rel="stylesheet" href="./general.css/settings.css" />
   <link rel="stylesheet" href="./block-css/header.css">
   <style>
-    /* Scrollbar estetic */
     ::-webkit-scrollbar {
       height: 8px;
     }
@@ -26,7 +25,6 @@ require './databasse/db.php';
     ::-webkit-scrollbar-thumb:hover {
       background: #888;
     }
-    /* Ascundem scrollul inițial */
     .scrollbar-hide::-webkit-scrollbar {
       display: none;
     }
@@ -36,21 +34,23 @@ require './databasse/db.php';
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="relative min-h-screen text-gray-800 bg-gradient-to-br from-white via-blue-100 to-blue-200">
+  <div class="relative z-10">
 
 <?php include './partials/header.php'; ?>
 
-<h1 class="text-3xl font-bold text-center mt-6 mb-4 pt-[100px]">Find Your Perfect Stay</h1>
+<section class="pt-[120px] pb-16 px-4">
+  <h1 class="text-4xl md:text-5xl font-extrabold text-center text-blue-900 drop-shadow-md mb-10 tracking-tight">
+    ✨ Discover Your Perfect Stay ✨
+  </h1>
 
-<div class="container mx-auto px-4 pt-[100px]">
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
     <?php
     $result = $conn->query("SELECT * FROM hotels");
 
     while ($row = $result->fetch_assoc()):
       $hotel_id = $row['id'];
 
-      // Imagini hotel
       $img_stmt = $conn->prepare("SELECT image_path FROM hotel_images WHERE hotel_id = ?");
       $img_stmt->bind_param("i", $hotel_id);
       $img_stmt->execute();
@@ -61,7 +61,6 @@ require './databasse/db.php';
       }
       $img_stmt->close();
 
-      // Rating hotel
       $rating_stmt = $conn->prepare("SELECT AVG(rating) as avg_rating FROM ratings WHERE hotel_id = ?");
       $rating_stmt->bind_param("i", $hotel_id);
       $rating_stmt->execute();
@@ -69,82 +68,46 @@ require './databasse/db.php';
       $avg_rating = round($rating_result->fetch_assoc()['avg_rating'] ?? 0, 1);
       $rating_stmt->close();
     ?>
-<div class="hotel-card relative bg-white text-center rounded-xl shadow-lg transform transition duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in overflow-hidden">
-  
-  <!-- Titlu hotel -->
-  <h2 class="text-xl font-bold text-gray-800 mb-3 p-4"><?= htmlspecialchars($row['title']) ?></h2>
-
-  <!-- Galerie imagini -->
-  <div class="relative mb-4 group">
-    <!-- Buton stânga -->
-    <button onclick="scrollLeft('slider-<?= $hotel_id ?>')" 
-            class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 border border-gray-300 rounded-full p-2 shadow hover:bg-white hover:scale-110 transition z-[20] opacity-0 group-hover:opacity-100">◀</button>
-
-    <!-- Slider imagini -->
-    <div id="slider-<?= $hotel_id ?>" 
-     class="flex overflow-x-auto scrollbar-hide hover:overflow-x-scroll snap-x snap-mandatory gap-2 scroll-smooth relative z-0 w-full h-60 cursor-grab">
-
-      <?php foreach ($images as $index => $imgPath): ?>
-        <img src="<?= $imgPath ?>"
-             onclick='openModal(<?= json_encode($images) ?>, <?= $index ?>)'
-             class="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
-             alt="Hotel Image">
-      <?php endforeach; ?>
+    <div class="bg-white/30 backdrop-blur-lg rounded-2xl overflow-hidden shadow-xl border border-white/40 transform hover:scale-[1.02] transition duration-300">
+      <div class="relative group h-56 overflow-hidden">
+        <div id="slider-<?= $hotel_id ?>" class="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth h-full w-full cursor-pointer">
+          <?php foreach ($images as $index => $imgPath): ?>
+            <img src="<?= $imgPath ?>" onclick='openModal(<?= json_encode($images) ?>, <?= $index ?>)' alt="Hotel Image" class="object-cover w-full h-full snap-center flex-shrink-0 hover:opacity-90 transition duration-300">
+          <?php endforeach; ?>
+        </div>
+        <button onclick="scrollLeft('slider-<?= $hotel_id ?>')" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/70 p-2 rounded-full text-gray-700 hover:bg-white shadow-md hidden group-hover:block">◀</button>
+        <button onclick="scrollRight('slider-<?= $hotel_id ?>')" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/70 p-2 rounded-full text-gray-700 hover:bg-white shadow-md hidden group-hover:block">▶</button>
+      </div>
+      <div class="p-5">
+        <h2 class="text-xl font-bold text-gray-800 mb-2"><?= htmlspecialchars($row['title']) ?></h2>
+        <div class="flex items-center justify-center mb-2">
+          <span class="text-yellow-500 text-lg">★</span>
+          <span class="ml-1 text-gray-700 font-medium"><?= $avg_rating ?> / 5</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-2 line-clamp-3"><?= htmlspecialchars($row['description']) ?></p>
+        <p class="text-sm text-gray-700 mb-2 font-semibold">💷 £<?= $row['price_per_day'] ?> / night</p>
+        <p class="text-xs text-gray-500">👥 Max guests: <?= $row['max_guests'] ?></p>
+        <a href="book.php?id=<?= $hotel_id ?>" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition">Book Now</a>
+      </div>
     </div>
-
-    <!-- Buton dreapta -->
-    <button onclick="scrollRight('slider-<?= $hotel_id ?>')" 
-            class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 border border-gray-300 rounded-full p-2 shadow hover:bg-white hover:scale-110 transition z-[20] opacity-0 group-hover:opacity-100">▶</button>
-  </div>
-
-  <!-- Rating -->
-  <div class="flex items-center justify-center mb-2">
-    <span class="text-yellow-500 text-lg">★</span>
-    <span class="ml-1 text-gray-700"><?= $avg_rating ?> / 5</span>
-  </div>
-
-  <!-- Info -->
-  <div class="px-4 pb-4">
-    <p class="text-md font-semibold text-gray-700">£<?= $row['price_per_day'] ?> / night</p>
-    <p class="text-gray-600 mb-2"><?= htmlspecialchars($row['description']) ?></p>
-    <p class="text-sm text-gray-500">Max guests: <?= $row['max_guests'] ?></p>
-
-    <a href="book.php?id=<?= $hotel_id ?>"
-       target="_blank" 
-       class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-      Book Now...
-    </a>
-  </div>
-</div>
-
     <?php endwhile; ?>
   </div>
-</div>
+</section>
 
 <?php include './partials/footer.php'; ?>
 
 <script src="./script.js"></script>
-
 <script>
-// Scroll funcții
 function scrollLeft(id) {
   const container = document.getElementById(id);
-  if (!container) {
-    console.error("Container not found for ID:", id);
-    return;
-  }
-  container.scrollLeft -= container.offsetWidth;
+  if (container) container.scrollLeft -= container.offsetWidth;
 }
-
 function scrollRight(id) {
   const container = document.getElementById(id);
-  if (!container) {
-    console.error("Container not found for ID:", id);
-    return;
-  }
-  container.scrollLeft += container.offsetWidth;
+  if (container) container.scrollLeft += container.offsetWidth;
 }
 </script>
 
+</div>
 </body>
 </html>

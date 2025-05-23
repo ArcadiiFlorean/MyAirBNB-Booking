@@ -2,9 +2,10 @@
 session_start();
 require '../databasse/db.php';
 
-$username = $_POST['username'];
-$password = $_POST['password'];
-$role = 'host'; // poți schimba rolul după nevoie
+$username = trim($_POST['username'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$password = $_POST['password'] ?? '';
+$role = 'host';
 
 // Începem HTML-ul
 ?>
@@ -24,26 +25,48 @@ $role = 'host'; // poți schimba rolul după nevoie
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
 <?php
-// Verificăm dacă username-ul există deja
-$check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
-$check_stmt->bind_param("s", $username);
-$check_stmt->execute();
-$check_stmt->store_result();
+// Validare simplă
+if (empty($username) || empty($email) || empty($password)) {
+    echo "<div class='bg-red-100 text-red-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
+            ❌ All fields are required.
+          </div>";
+    exit;
+}
 
-if ($check_stmt->num_rows > 0) {
+// Verificăm dacă username-ul există deja
+$check_username = $conn->prepare("SELECT id FROM users WHERE username = ?");
+$check_username->bind_param("s", $username);
+$check_username->execute();
+$check_username->store_result();
+
+if ($check_username->num_rows > 0) {
     echo "<div class='bg-red-100 text-red-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
             ❌ Username already exists. Please choose another one.
           </div>";
     exit;
 }
-$check_stmt->close();
+$check_username->close();
+
+// Verificăm dacă emailul există deja
+$check_email = $conn->prepare("SELECT id FROM users WHERE email = ?");
+$check_email->bind_param("s", $email);
+$check_email->execute();
+$check_email->store_result();
+
+if ($check_email->num_rows > 0) {
+    echo "<div class='bg-red-100 text-red-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
+            ❌ Email already registered. Try logging in.
+          </div>";
+    exit;
+}
+$check_email->close();
 
 // Criptăm parola
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 // Inserăm utilizatorul
-$stmt = $conn->prepare("INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)");
-$stmt->bind_param("sss", $username, $password_hash, $role);
+$stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $username, $email, $password_hash, $role);
 
 if ($stmt->execute()) {
     echo "<div class='bg-green-100 text-green-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
