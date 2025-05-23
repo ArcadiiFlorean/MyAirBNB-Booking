@@ -57,7 +57,7 @@ $hostStmt->close();
 
 
 </head>
-<body class="bg-gray-100 text-gray-800 ">
+<body class="bg-blue-100 text-gray-800 ">
 <?php include './partials/header.php'; ?>
 
 
@@ -96,7 +96,7 @@ $hostStmt->close();
   </div>
 
   <!-- Booking Form -->
-   <div class="booking-form-container">
+   <div class="booking-form-container flex gap-24">
 <!-- ... partea PHP de sus rămâne neschimbată ... -->
 
 <!-- În interiorul formularului de booking -->
