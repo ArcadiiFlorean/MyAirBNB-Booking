@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
-<!-- Tailwind CSS (dacă nu e deja inclus în pagină principală) -->
+<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <header class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-blue-400 border-b border-white/20 shadow-sm">
@@ -25,15 +25,15 @@ if (session_status() === PHP_SESSION_NONE) {
       </svg>
     </button>
 
-    <!-- Navigation -->
+    <!-- Navigation (desktop) -->
     <nav id="nav-menu" class="hidden md:flex gap-6 items-center text-gray-700 font-medium">
       <?php if (!isset($_SESSION['user_id'])): ?>
         <a href="registerPHP/login.php" class="hover:text-white transition">Login</a>
         <a href="registerPHP/register.php" class="hover:text-white transition">Register</a>
       <?php else: ?>
-        <?php if ($_SESSION['role'] === 'host'): ?>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'host'): ?>
           <a href="my_hotels.php" class="hover:text-green-600 transition">My Hotels</a>
-        <?php elseif ($_SESSION['role'] === 'admin'): ?>
+        <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
           <a href="admin_dashboard.php" class="hover:text-green-600 transition">Admin Dashboard</a>
         <?php endif; ?>
         <a href="registerPHP/logout.php" class="text-red-500 hover:text-red-700 transition">Logout</a>
@@ -41,15 +41,15 @@ if (session_status() === PHP_SESSION_NONE) {
     </nav>
   </div>
 
-  <!-- Responsive Nav (mobile dropdown) -->
+  <!-- Responsive Nav (mobile) -->
   <div id="mobile-menu" class="md:hidden hidden px-6 pb-4 flex flex-col gap-3 text-gray-700 bg-white/90 backdrop-blur-sm">
     <?php if (!isset($_SESSION['user_id'])): ?>
       <a href="registerPHP/login.php" class="hover:text-green-600 transition">Login</a>
       <a href="registerPHP/register.php" class="hover:text-green-600 transition">Register</a>
     <?php else: ?>
-      <?php if ($_SESSION['role'] === 'host'): ?>
+      <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'host'): ?>
         <a href="my_hotels.php" class="hover:text-green-600 transition">My Hotels</a>
-      <?php elseif ($_SESSION['role'] === 'admin'): ?>
+      <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
         <a href="admin_dashboard.php" class="hover:text-green-600 transition">Admin Dashboard</a>
       <?php endif; ?>
       <a href="registerPHP/logout.php" class="text-red-500 hover:text-red-700 transition">Logout</a>
