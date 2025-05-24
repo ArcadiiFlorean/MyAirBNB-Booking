@@ -41,7 +41,7 @@ require './databasse/db.php';
 
 <section class="pt-[120px] pb-16 px-4">
   <h1 class="text-4xl md:text-5xl font-extrabold text-center text-blue-900 drop-shadow-md mb-10 tracking-tight">
-    ✨ Discover Your Perfect Stay ✨
+     Discover Your Perfect Stay 
   </h1>
 
   <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">

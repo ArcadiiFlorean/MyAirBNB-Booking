@@ -22,7 +22,9 @@ $role = 'host';
     }
   </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+<body class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-r from-blue-200 via-white to-green-200">
+
 
 <?php
 // Validare simplă
@@ -68,18 +70,33 @@ $password_hash = password_hash($password, PASSWORD_DEFAULT);
 $stmt = $conn->prepare("INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
 $stmt->bind_param("ssss", $username, $email, $password_hash, $role);
 
+
 if ($stmt->execute()) {
-    echo "<div class='bg-green-100 text-green-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
-            ✅ Registration successful.<br>
-            <a href='login.php' class='underline text-green-800 hover:text-green-900'>Login here</a>
-          </div>";
+    echo "
+    <div class='bg-green-100 text-green-800 p-6 rounded-xl shadow-lg max-w-md w-full mx-auto text-center animate-fade-in'>
+        <div class='text-3xl mb-2'>✅</div>
+        <h2 class='text-xl font-semibold mb-1'>Registration successful!</h2>
+        <p class='mb-3'>You can now log in to your account.</p>
+        <a href='login.php' class='inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition'>
+            Login here
+        </a>
+    </div>
+    ";
 } else {
-    echo "<div class='bg-red-100 text-red-700 p-6 rounded-lg shadow max-w-md w-full text-center'>
-            ❌ Error: " . htmlspecialchars($stmt->error) . "
-          </div>";
+    echo "
+    <div class='bg-red-100 text-red-800 p-6 rounded-xl shadow-lg max-w-md w-full mx-auto text-center animate-fade-in'>
+        <div class='text-3xl mb-2'>❌</div>
+        <h2 class='text-xl font-semibold mb-1'>Something went wrong!</h2>
+        <p class='mb-2'>". htmlspecialchars($stmt->error) ."</p>
+        <a href='register.php' class='inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition'>
+            Try again
+        </a>
+    </div>
+    ";
 }
-$stmt->close();
 ?>
+
+
 
 </body>
 </html>

@@ -6,13 +6,13 @@ if (session_status() === PHP_SESSION_NONE) {
 <!-- Tailwind CSS (dacă nu e deja inclus în pagină principală) -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<header class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/30 border-b border-white/20 shadow-sm">
+<header class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-blue-400 border-b border-white/20 shadow-sm">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
     <!-- Logo + Brand -->
     <a href="index.php" class="flex items-center gap-3 group">
       <img src="img/logo-2.png" alt="Logo" class="w-12 h-12 rounded-full object-cover border-2 border-green-500 shadow-sm group-hover:scale-105 transition duration-300">
-      <span class="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition duration-300 tracking-tight">
+      <span class="text-2xl font-bold text-gray-800 group-hover:text-white transition duration-300 tracking-tight">
         VacayStar
       </span>
     </a>
@@ -28,8 +28,8 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- Navigation -->
     <nav id="nav-menu" class="hidden md:flex gap-6 items-center text-gray-700 font-medium">
       <?php if (!isset($_SESSION['user_id'])): ?>
-        <a href="registerPHP/login.php" class="hover:text-green-600 transition">Login</a>
-        <a href="registerPHP/register.php" class="hover:text-green-600 transition">Register</a>
+        <a href="registerPHP/login.php" class="hover:text-white transition">Login</a>
+        <a href="registerPHP/register.php" class="hover:text-white transition">Register</a>
       <?php else: ?>
         <?php if ($_SESSION['role'] === 'host'): ?>
           <a href="my_hotels.php" class="hover:text-green-600 transition">My Hotels</a>
